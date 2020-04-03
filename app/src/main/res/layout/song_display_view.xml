@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/songNuemorphic"
+    android:layout_width="match_parent"
+    android:layout_height="70dp"
+    android:text="Hello World..."
+    android:textColor="@color/colorPrimaryDark"
+    android:textStyle="bold"
+    android:maxLines="1"
+    android:textSize="15sp"
+    android:layout_centerVertical="true"
+    android:layout_margin="5dp"
+    android:padding="20dp"
+    >
+</TextView>
