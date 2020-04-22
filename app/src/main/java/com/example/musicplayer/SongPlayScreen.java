@@ -31,6 +31,8 @@ import java.util.HashMap;
 // TODO: make it so that if the play button is pressed after the song ends, it doesn't play the song
 // TODO: work on automatically playing the next song after the previous one ends
 // TODO: Volume controls when it is running in the background
+// TODO: Make one activity for song play screen as well
+// TODO: Headphones plugged in
 // The task above will be able to work if we have a notification activity
 // ******TODO: Seekbar
 // ******TODO: arranging songs in alphabetical order
@@ -49,7 +51,7 @@ public class SongPlayScreen extends AppCompatActivity {
 
     private boolean flag = false;
     static AudioManager audioManager;
-    Handler SeekbarUpdateHandler;
+    static Handler SeekbarUpdateHandler;
     static Runnable UpdateSeekbar;
 
     static MediaPlayer mediaPlayer;
@@ -94,17 +96,18 @@ public class SongPlayScreen extends AppCompatActivity {
 
         }
 
-        if (mediaPlayer != null) {
-            UpdateSeekbar = new Runnable() {
-                @Override
-                public void run() {
-                        seekBar.setProgress(mediaPlayer.getCurrentPosition());
-                        SeekbarUpdateHandler.postDelayed(this, 0);
+        UpdateSeekbar = new Runnable() {
+            @Override
+            public void run() {
+                seekBar.setProgress(mediaPlayer.getCurrentPosition());
+                SeekbarUpdateHandler.postDelayed(this, 0);
 
-                        float volumeUp = (float) (6.666666666666667 * (audioManager.getStreamVolume(AudioManager.STREAM_MUSIC))) / 100;
-                        mediaPlayer.setVolume(volumeUp, volumeUp);
-                }
-            };
+                float volumeUp = (float) (6.666666666666667 * (audioManager.getStreamVolume(AudioManager.STREAM_MUSIC))) / 100;
+                mediaPlayer.setVolume(volumeUp, volumeUp);
+            }
+        };
+
+        if (mediaPlayer != null) {
             SongControls(mediaPlayer, playPause, uri, seekBar, next, position);
         }
 
@@ -136,46 +139,7 @@ public class SongPlayScreen extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
-        SeekbarUpdateHandler.postDelayed(UpdateSeekbar, 0);
-        // To set the position upon restart of this activity, Might wanna try putting it in onResum()
-//        if(mediaPlayer!=null)
-//            seekBar.setProgress(mediaPlayer.getCurrentPosition());
     }
-
-//      UpdateSeekbar = new Runnable() {
-//        @Override
-//        public void run() {
-//            if(mediaPlayer != null) {
-//                seekBar.setProgress(mediaPlayer.getCurrentPosition());
-//                SeekbarUpdateHandler.postDelayed(this, 50);
-//
-//                float volumeUp = (float) (6.666666666666667 * (audioManager.getStreamVolume(AudioManager.STREAM_MUSIC))) / 100;
-//                mediaPlayer.setVolume(volumeUp, volumeUp);
-//            }
-//        }
-//    };
-
-//
-//    @Override
-//    public boolean onKeyDown(int keyCode, KeyEvent event) {
-//        switch (keyCode) {
-//            case KeyEvent.KEYCODE_VOLUME_UP:
-//            case KeyEvent.KEYCODE_VOLUME_DOWN:
-//                // MIN = 0;
-//                // MAX = 15;// TODO: CHECK WHETHER THIS HOLDS TRUE IN OTHER PHONES OR NOT.
-////                        AudioManager.ADJUST_LOWER,
-////                audioManager.adjustStreamVolume(
-////                        AudioManager.STREAM_MUSIC,
-////                        AudioManager.ADJUST_RAISE,
-////                        AudioManager.FLAG_PLAY_SOUND | AudioManager.FLAG_SHOW_UI);
-////                float volumeUp = (float) (6.666666666666667 * (audioManager.getStreamVolume(AudioManager.STREAM_MUSIC))) / 100;
-////                mediaPlayer.setVolume(volumeUp, volumeUp);
-//                break;
-//            default:
-//                break;
-//        }
-//        return super.onKeyDown(keyCode, event);
-//    }
 
     void SongControls(MediaPlayer mediaPlayer, Button play, String uri, SeekBar progressBar, Button nextButton, int pos) {
         songPlayPause(mediaPlayer, play, uri);
@@ -217,15 +181,15 @@ public class SongPlayScreen extends AppCompatActivity {
     void onPlayClick(final MediaPlayer mediaPlayer) {
         if (!flag && mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
-            SeekbarUpdateHandler.removeCallbacks(UpdateSeekbar);
+//            SeekbarUpdateHandler.removeCallbacks(UpdateSeekbar);
             flag = false;
         } else if (!flag) {
             mediaPlayer.start();
-            SeekbarUpdateHandler.postDelayed(UpdateSeekbar, 0);
+//            SeekbarUpdateHandler.postDelayed(UpdateSeekbar, 0);
             flag = true;
         } else if (mediaPlayer.isPlaying() && flag) {
             mediaPlayer.pause();
-            SeekbarUpdateHandler.removeCallbacks(UpdateSeekbar);
+//            SeekbarUpdateHandler.removeCallbacks(UpdateSeekbar);
             flag = false;
         }
     }

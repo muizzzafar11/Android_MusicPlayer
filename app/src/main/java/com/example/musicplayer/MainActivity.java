@@ -11,6 +11,7 @@ import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -44,14 +45,18 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
     SongRecyclerAdapter songListViewAdapter;
     RecyclerView.LayoutManager layoutManager;
 
-    Intent intent;
+//    Intent intent;
     Permissions permissions;
-    SongPlayScreen songPlayScreen;
-    Runnable runnable;
+//    SongPlayScreen songPlayScreen;
 
     TextView bottomTV;
     Button play, next, prev;
     ConstraintLayout bottomBar;
+
+    MediaPlayer mediaPlayer;
+
+    SongPlayingDisplay SP_d;
+
     // Storing the names
     static ArrayList<HashMap<String, String>> songList = new ArrayList<>();
 
@@ -59,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
     protected void onResume() {
         super.onResume();
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
-        BottomBarControls();
+//        BottomBarControls();
     }
 
     @Override
@@ -89,41 +94,41 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
             songListView.setHasFixedSize(true);
             songListView.setAdapter(songListViewAdapter);
 
-            BottomBarControls();
+            mediaPlayer = SongPlayingDisplay.InitializePlayer(mediaPlayer, this);
 
-            runnable = SongPlayScreen.UpdateSeekbar;
+//            BottomBarControls();
         } else {
             Toast.makeText(this, "Permission Not Granted, Please restart the app", Toast.LENGTH_LONG).show();
         }
     }
 
-    void BottomBarControls() {
-        if(songPlayScreen != null){
-            DispBottomText();
-            PlayPauseBottom();
-            bottomBarClicked();
-        }
-    }
+//    void BottomBarControls() {
+//        if(songPlayScreen != null){
+//            DispBottomText();
+//            PlayPauseBottom();
+//            bottomBarClicked();
+//        }
+//    }
 
-    void bottomBarClicked() {
-        if(intent != null){
-            bottomBar.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivity(intent);
-                }
-            });
-        }
-    }
+//    void bottomBarClicked() {
+//        if(intent != null){
+//            bottomBar.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    startActivity(intent);
+//                }
+//            });
+//        }
+//    }
 
-    void PlayPauseBottom() {
-        play.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                songPlayScreen.onPlayClick(SongPlayScreen.mediaPlayer);
-            }
-        });
-    }
+//    void PlayPauseBottom() {
+//        play.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                songPlayScreen.onPlayClick(SongPlayScreen.mediaPlayer);
+//            }
+//        });
+//    }
 
     void DispBottomText() {
             bottomTV.setText(SongPlayScreen.displayName);
@@ -168,8 +173,10 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
     }
 
     public void song(int position) {
-        songPlayScreen = new SongPlayScreen(songList.get(position).get("Title:"), songList.get(position).get("URI:"), position, songList);
-        intent = new Intent(this, songPlayScreen.getClass());
-        startActivity(intent);
+        SP_d = new SongPlayingDisplay(position, songList.get(position).get("Title:"), songList.get(position).get("URI:"), mediaPlayer, this);
+        SP_d.play();
+//        songPlayScreen = new SongPlayScreen(songList.get(position).get("Title:"), songList.get(position).get("URI:"), position, songList);
+//        intent = new Intent(this, songPlayScreen.getClass());
+//        startActivity(intent);
     }
 }
