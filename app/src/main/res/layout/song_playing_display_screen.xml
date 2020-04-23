@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
 
-    android:background="@color/colorPrimary"
+    android:background="@drawable/blur_background"
     tools:context=".SongPlayScreen">
 
 
@@ -77,10 +77,10 @@
 
     <TextView
         android:id="@+id/songNameDisplay"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
+        android:layout_width="116dp"
+        android:layout_height="38dp"
         android:layout_margin="20dp"
-        android:background="@drawable/neumorphic_button"
+        android:background="@android:color/background_light"
         android:elevation="60dp"
         android:ellipsize="marquee"
         android:gravity="center_horizontal"

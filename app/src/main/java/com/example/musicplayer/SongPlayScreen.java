@@ -121,7 +121,6 @@ public class SongPlayScreen extends AppCompatActivity {
 
         // To set the Volume to that of mediaPlayer when the song starts
         mp.setAudioAttributes(new AudioAttributes.Builder()
-                .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
                 .setLegacyStreamType(getVolumeControlStream())
                 .setUsage(AudioAttributes.USAGE_MEDIA)
                 .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
@@ -198,7 +197,6 @@ public class SongPlayScreen extends AppCompatActivity {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                new MainActivity().song(pos+1);
             }
         });
     }

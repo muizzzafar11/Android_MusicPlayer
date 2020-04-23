@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
 
     MediaPlayer mediaPlayer;
 
-    SongPlayingDisplay SP_d;
+    SongPlayingDisplay songPlayDisp;
 
     // Storing the names
     static ArrayList<HashMap<String, String>> songList = new ArrayList<>();
@@ -173,10 +173,33 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
     }
 
     public void song(int position) {
-        SP_d = new SongPlayingDisplay(position, songList.get(position).get("Title:"), songList.get(position).get("URI:"), mediaPlayer, this);
-        SP_d.play();
+        songPlayDisp = new SongPlayingDisplay(position, songList.get(position).get("Title:"), songList.get(position).get("URI:"), mediaPlayer, this);
+        setContentView(R.layout.song_playing_display_screen);
+        songPlayDisp.playPause();
 //        songPlayScreen = new SongPlayScreen(songList.get(position).get("Title:"), songList.get(position).get("URI:"), position, songList);
 //        intent = new Intent(this, songPlayScreen.getClass());
 //        startActivity(intent);
+
+
+        //    @Override
+//    public boolean onKeyDown(int keyCode, KeyEvent event) {
+//        switch (keyCode) {
+//            case KeyEvent.KEYCODE_VOLUME_UP:
+//            case KeyEvent.KEYCODE_VOLUME_DOWN:
+//                // MIN = 0;
+//                // MAX = 15;// TODO: CHECK WHETHER THIS HOLDS TRUE IN OTHER PHONES OR NOT.
+//                        AudioManager.ADJUST_LOWER,
+//                audioManager.adjustStreamVolume(
+//                        AudioManager.STREAM_MUSIC,
+//                        AudioManager.ADJUST_RAISE,
+//                        AudioManager.FLAG_PLAY_SOUND | AudioManager.FLAG_SHOW_UI);
+//                float volumeUp = (float) (6.666666666666667 * (audioManager.getStreamVolume(AudioManager.STREAM_MUSIC))) / 100;
+//                mediaPlayer.setVolume(volumeUp, volumeUp);
+//                break;
+//            default:
+//                break;
+//        }
+//        return super.onKeyDown(keyCode, event);
+//    }
     }
 }
