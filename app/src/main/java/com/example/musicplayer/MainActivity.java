@@ -5,23 +5,23 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;
+import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -45,17 +45,18 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
     SongRecyclerAdapter songListViewAdapter;
     RecyclerView.LayoutManager layoutManager;
 
-//    Intent intent;
+    Intent intent;
     Permissions permissions;
-//    SongPlayScreen songPlayScreen;
+    SongPlayScreen songPlayScreen;
 
     TextView bottomTV;
     Button play, next, prev;
     ConstraintLayout bottomBar;
 
     MediaPlayer mediaPlayer;
+    private boolean flag = false;
 
-    SongPlayingDisplay songPlayDisp;
+    MediaPlayerHandler songPlayDisp;
 
     // Storing the names
     static ArrayList<HashMap<String, String>> songList = new ArrayList<>();
@@ -94,44 +95,43 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
             songListView.setHasFixedSize(true);
             songListView.setAdapter(songListViewAdapter);
 
-            mediaPlayer = SongPlayingDisplay.InitializePlayer(mediaPlayer, this);
-
-//            BottomBarControls();
+            mediaPlayer = MediaPlayerHandler.InitializePlayer(mediaPlayer, this);
         } else {
             Toast.makeText(this, "Permission Not Granted, Please restart the app", Toast.LENGTH_LONG).show();
         }
     }
 
-//    void BottomBarControls() {
-//        if(songPlayScreen != null){
-//            DispBottomText();
-//            PlayPauseBottom();
-//            bottomBarClicked();
-//        }
-//    }
+    void BottomBarControls(String title, MediaPlayer bottomMediaPlayer) {
+        if(mediaPlayer != null){
+            DispBottomText(title);
+            PlayPauseBottom(bottomMediaPlayer);
+        }
+    }
 
-//    void bottomBarClicked() {
-//        if(intent != null){
-//            bottomBar.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
+    void bottomBarClicked() {
+        if(intent != null){
+            bottomBar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+//                    songPlayScreen = new SongPlayScreen(songList.get(position).get("Title:"), songList.get(position).get("URI:"), position, songList);
+//                    intent = new Intent(this, songPlayScreen.getClass());
 //                    startActivity(intent);
-//                }
-//            });
-//        }
-//    }
+                }
+            });
+        }
+    }
 
-//    void PlayPauseBottom() {
-//        play.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                songPlayScreen.onPlayClick(SongPlayScreen.mediaPlayer);
-//            }
-//        });
-//    }
+    void PlayPauseBottom(MediaPlayer bottomM_P) {
+        play.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-    void DispBottomText() {
-            bottomTV.setText(SongPlayScreen.displayName);
+            }
+        });
+    }
+
+    void DispBottomText(String songTitle) {
+            bottomTV.setText(songTitle);
             bottomTV.setSelected(true);
     }
 
@@ -169,37 +169,27 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
 
     @Override
     public void onClickSong(int position) {
+        stopInitializePlayer(true);
         song(position);
     }
 
+    void stopInitializePlayer(boolean initialize) {
+        if(mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
+            mediaPlayer.reset();
+            mediaPlayer.release();
+            if(initialize)
+                mediaPlayer = MediaPlayerHandler.InitializePlayer(mediaPlayer, this);
+        }
+    }
+
     public void song(int position) {
-        songPlayDisp = new SongPlayingDisplay(position, songList.get(position).get("Title:"), songList.get(position).get("URI:"), mediaPlayer, this);
-        setContentView(R.layout.song_playing_display_screen);
-        songPlayDisp.playPause();
+        BottomBarControls(songList.get(position).get("Title:"), mediaPlayer);
+        MediaPlayerHandler MPH =
+                new MediaPlayerHandler(songList.get(position).get("URI:"), mediaPlayer, this);
+        MPH.playPause(play, position);
 //        songPlayScreen = new SongPlayScreen(songList.get(position).get("Title:"), songList.get(position).get("URI:"), position, songList);
 //        intent = new Intent(this, songPlayScreen.getClass());
 //        startActivity(intent);
-
-
-        //    @Override
-//    public boolean onKeyDown(int keyCode, KeyEvent event) {
-//        switch (keyCode) {
-//            case KeyEvent.KEYCODE_VOLUME_UP:
-//            case KeyEvent.KEYCODE_VOLUME_DOWN:
-//                // MIN = 0;
-//                // MAX = 15;// TODO: CHECK WHETHER THIS HOLDS TRUE IN OTHER PHONES OR NOT.
-//                        AudioManager.ADJUST_LOWER,
-//                audioManager.adjustStreamVolume(
-//                        AudioManager.STREAM_MUSIC,
-//                        AudioManager.ADJUST_RAISE,
-//                        AudioManager.FLAG_PLAY_SOUND | AudioManager.FLAG_SHOW_UI);
-//                float volumeUp = (float) (6.666666666666667 * (audioManager.getStreamVolume(AudioManager.STREAM_MUSIC))) / 100;
-//                mediaPlayer.setVolume(volumeUp, volumeUp);
-//                break;
-//            default:
-//                break;
-//        }
-//        return super.onKeyDown(keyCode, event);
-//    }
     }
 }

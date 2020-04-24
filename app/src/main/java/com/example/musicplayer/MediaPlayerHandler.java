@@ -4,18 +4,19 @@ import android.app.Activity;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.view.View;
+import android.widget.Button;
 
 import java.io.IOException;
 
-class SongPlayingDisplay {
-    private int pos;
-    private String title, uri;
+class MediaPlayerHandler {
+    private String uri;
     private MediaPlayer mediaPlayer;
     private Activity activity;
+    private boolean flag = false;
+    private int checkPos;
 
-    SongPlayingDisplay(int _pos, String _title, String _uri, MediaPlayer _mp, Activity _activity) {
-        this.pos = _pos;
-        this.title = _title;
+    MediaPlayerHandler(String _uri, MediaPlayer _mp, Activity _activity) {
         this.uri = _uri;
         this.mediaPlayer = _mp;
         this.activity = _activity;
@@ -23,8 +24,6 @@ class SongPlayingDisplay {
 
      static MediaPlayer InitializePlayer(MediaPlayer mp, Activity activity) {
         mp = new MediaPlayer();
-        // To set the Volume to that of mediaPlayer when the song starts
-
          mp.setAudioAttributes(new AudioAttributes.Builder()
                  .setLegacyStreamType(activity.getVolumeControlStream())
                  .setUsage(AudioAttributes.USAGE_MEDIA)
@@ -33,8 +32,8 @@ class SongPlayingDisplay {
         return mp;
     }
 
-     void playPause() {
-         if (!mediaPlayer.isPlaying()) {
+
+     void playPause(Button playPause, int pos) {
              try {
                  mediaPlayer.setDataSource(activity.getApplicationContext(), Uri.parse(uri));
                  mediaPlayer.prepareAsync();
@@ -47,8 +46,25 @@ class SongPlayingDisplay {
                      mp.start();
                  }
              });
-         } else {
+             checkPos = pos;
+         playPause.setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View v) {
+                 buttonPlayPause();
+             }
+         });
+     }
+
+     private void buttonPlayPause() {
+         if (!flag && mediaPlayer.isPlaying()) {
              mediaPlayer.pause();
+             flag = false;
+         } else if (!flag) {
+             mediaPlayer.start();
+             flag = true;
+         } else if (mediaPlayer.isPlaying() && flag) {
+             mediaPlayer.pause();
+             flag = false;
          }
      }
 }

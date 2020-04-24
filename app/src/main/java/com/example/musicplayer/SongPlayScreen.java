@@ -91,7 +91,7 @@ public class SongPlayScreen extends AppCompatActivity {
                 mediaPlayer.reset();
                 mediaPlayer.release();
             }
-            mediaPlayer = InitializePlayer(mediaPlayer);
+//            mediaPlayer = InitializePlayer(mediaPlayer);
             SeekbarUpdateHandler = new Handler();
 
         }
@@ -101,9 +101,6 @@ public class SongPlayScreen extends AppCompatActivity {
             public void run() {
                 seekBar.setProgress(mediaPlayer.getCurrentPosition());
                 SeekbarUpdateHandler.postDelayed(this, 0);
-
-                float volumeUp = (float) (6.666666666666667 * (audioManager.getStreamVolume(AudioManager.STREAM_MUSIC))) / 100;
-                mediaPlayer.setVolume(volumeUp, volumeUp);
             }
         };
 
@@ -113,26 +110,41 @@ public class SongPlayScreen extends AppCompatActivity {
 
     }
 
-    private MediaPlayer InitializePlayer
-            (MediaPlayer mp) {
+    //    @Override
+//    public boolean onKeyDown(int keyCode, KeyEvent event) {
+//        switch (keyCode) {
+//            case KeyEvent.KEYCODE_VOLUME_UP:
+//            case KeyEvent.KEYCODE_VOLUME_DOWN:
+//                // MIN = 0;
+//                // MAX = 15;// TODO: CHECK WHETHER THIS HOLDS TRUE IN OTHER PHONES OR NOT.
+//                        AudioManager.ADJUST_LOWER,
+//                audioManager.adjustStreamVolume(
+//                        AudioManager.STREAM_MUSIC,
+//                        AudioManager.ADJUST_RAISE,
+//                        AudioManager.FLAG_PLAY_SOUND | AudioManager.FLAG_SHOW_UI);
+//                float volumeUp = (float) (6.666666666666667 * (audioManager.getStreamVolume(AudioManager.STREAM_MUSIC))) / 100;
+//                mediaPlayer.setVolume(volumeUp, volumeUp);
+//                break;
+//            default:
+//                break;
+//        }
+//        return super.onKeyDown(keyCode, event);
+//    }
 
-        // Initializing MediaPlayer again, after the previous song has been stopped
-        mp = new MediaPlayer();
-
-        // To set the Volume to that of mediaPlayer when the song starts
-        mp.setAudioAttributes(new AudioAttributes.Builder()
-                .setLegacyStreamType(getVolumeControlStream())
-                .setUsage(AudioAttributes.USAGE_MEDIA)
-                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                .build());
-
-        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-
-        currentVolume = (float) (6.666666666666667 * (audioManager.getStreamVolume(AudioManager.STREAM_MUSIC))) / 100;
-        mp.setVolume(currentVolume, currentVolume);
-
-        return mp;
-    }
+//    private MediaPlayer InitializePlayer
+//            (MediaPlayer mp) {
+//
+//        // Initializing MediaPlayer again, after the previous song has been stopped
+//        mp = new MediaPlayer();
+//
+//        // To set the Volume to that of mediaPlayer when the song starts
+//        mp.setAudioAttributes(new AudioAttributes.Builder()
+//                .setLegacyStreamType(getVolumeControlStream())
+//                .setUsage(AudioAttributes.USAGE_MEDIA)
+//                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+//                .build());
+//        return mp;
+//    }
 
     @Override
     protected void onResume() {
@@ -164,11 +176,8 @@ public class SongPlayScreen extends AppCompatActivity {
                     SeekbarUpdateHandler.postDelayed(UpdateSeekbar, 0);
                 }
             });
-            // Setting it equal here so that it doesn't mess up with the .start() if statement
-            // This will be triggered every time. It can be thought of as an extension of previous if statement
             prevUri = uri;
         }
-//        seekBar.setProgress(mediaPlayer.getCurrentPosition());
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -180,15 +189,15 @@ public class SongPlayScreen extends AppCompatActivity {
     void onPlayClick(final MediaPlayer mediaPlayer) {
         if (!flag && mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
-//            SeekbarUpdateHandler.removeCallbacks(UpdateSeekbar);
+            SeekbarUpdateHandler.removeCallbacks(UpdateSeekbar);
             flag = false;
         } else if (!flag) {
             mediaPlayer.start();
-//            SeekbarUpdateHandler.postDelayed(UpdateSeekbar, 0);
+            SeekbarUpdateHandler.postDelayed(UpdateSeekbar, 0);
             flag = true;
         } else if (mediaPlayer.isPlaying() && flag) {
             mediaPlayer.pause();
-//            SeekbarUpdateHandler.removeCallbacks(UpdateSeekbar);
+            SeekbarUpdateHandler.removeCallbacks(UpdateSeekbar);
             flag = false;
         }
     }
@@ -208,8 +217,6 @@ public class SongPlayScreen extends AppCompatActivity {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser)
                     mp.seekTo(progress);
-//                if(progress == mp.getDuration())
-//                    mp.setNextMediaPlayer(mp);// Pass in the next mediaPlayer
             }
 
             @Override
