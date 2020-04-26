@@ -5,6 +5,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Intent;
@@ -53,10 +54,9 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
     Button play, next, prev;
     ConstraintLayout bottomBar;
 
-    MediaPlayer mediaPlayer;
-    private boolean flag = false;
-
-    MediaPlayerHandler songPlayDisp;
+    public static MediaPlayer mediaPlayer;
+    MediaPlayerHandler MPH;
+    public static int songCurrentPosition;
 
     // Storing the names
     static ArrayList<HashMap<String, String>> songList = new ArrayList<>();
@@ -65,7 +65,6 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
     protected void onResume() {
         super.onResume();
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
-//        BottomBarControls();
     }
 
     @Override
@@ -80,6 +79,8 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
 
         bottomTV = findViewById(R.id.bottomTextView);
         play = findViewById(R.id.bottomPlayButton);
+        next = findViewById(R.id.bottomNextButton);
+        prev = findViewById(R.id.bottomPrevButton);
         bottomBar = findViewById(R.id.bottomSongDispLayout);
 
         permissions = new Permissions(this);
@@ -96,15 +97,11 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
             songListView.setAdapter(songListViewAdapter);
 
             mediaPlayer = MediaPlayerHandler.InitializePlayer(mediaPlayer, this);
+
+            playNextSong(next);
+            playPrevSong(prev);
         } else {
             Toast.makeText(this, "Permission Not Granted, Please restart the app", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    void BottomBarControls(String title, MediaPlayer bottomMediaPlayer) {
-        if(mediaPlayer != null){
-            DispBottomText(title);
-            PlayPauseBottom(bottomMediaPlayer);
         }
     }
 
@@ -113,26 +110,12 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
             bottomBar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-//                    songPlayScreen = new SongPlayScreen(songList.get(position).get("Title:"), songList.get(position).get("URI:"), position, songList);
-//                    intent = new Intent(this, songPlayScreen.getClass());
-//                    startActivity(intent);
+//        songPlayScreen = new SongPlayScreen(songList.get(position).get("Title:"), songList.get(position).get("URI:"), position, songList);
+//        intent = new Intent(this, songPlayScreen.getClass());
+//        startActivity(intent);
                 }
             });
         }
-    }
-
-    void PlayPauseBottom(MediaPlayer bottomM_P) {
-        play.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-    }
-
-    void DispBottomText(String songTitle) {
-            bottomTV.setText(songTitle);
-            bottomTV.setSelected(true);
     }
 
     ArrayList<HashMap<String, String>> readAudioStorage(Cursor _cursor) {
@@ -169,27 +152,29 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
 
     @Override
     public void onClickSong(int position) {
-        stopInitializePlayer(true);
-        song(position);
+        MPH = new MediaPlayerHandler(songList.get(position).get("URI:"), songList.get(position).get("Title:"), mediaPlayer, this);
+        MediaPlayerHandler.songControls(position, MPH, play, bottomTV, this);
     }
 
-    void stopInitializePlayer(boolean initialize) {
-        if(mediaPlayer.isPlaying()) {
-            mediaPlayer.stop();
-            mediaPlayer.reset();
-            mediaPlayer.release();
-            if(initialize)
-                mediaPlayer = MediaPlayerHandler.InitializePlayer(mediaPlayer, this);
-        }
+    void playNextSong(Button Next){
+        Next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(songCurrentPosition == songList.size()-1)
+                    songCurrentPosition = -1;
+                onClickSong(songCurrentPosition+1);
+            }
+        });
     }
 
-    public void song(int position) {
-        BottomBarControls(songList.get(position).get("Title:"), mediaPlayer);
-        MediaPlayerHandler MPH =
-                new MediaPlayerHandler(songList.get(position).get("URI:"), mediaPlayer, this);
-        MPH.playPause(play, position);
-//        songPlayScreen = new SongPlayScreen(songList.get(position).get("Title:"), songList.get(position).get("URI:"), position, songList);
-//        intent = new Intent(this, songPlayScreen.getClass());
-//        startActivity(intent);
+    void playPrevSong(Button Prev){
+        Prev.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(songCurrentPosition == 0)
+                    songCurrentPosition = songList.size();
+                onClickSong(songCurrentPosition-1);
+            }
+        });
     }
 }
