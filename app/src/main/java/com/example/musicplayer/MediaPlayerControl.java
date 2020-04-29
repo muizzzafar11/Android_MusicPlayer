@@ -20,10 +20,10 @@ import java.util.HashMap;
 import java.util.Objects;
 
 import static com.example.musicplayer.MainActivity.songCurrentPosition;
+import static com.example.musicplayer.SongPlayScreen.currentSongPos;
 
 class MediaPlayerControl {
     private static String uri;
-    private static String checkUri;
     private static String title;
     private static int increasedPosition;
     private static int checkPos;
@@ -46,10 +46,6 @@ class MediaPlayerControl {
             controlClassMP = _mp;
         }
         activity = _activity;
-    }
-
-    MediaPlayerControl( Activity _activity) {
-        this.activity = _activity;
     }
 
     static void ReadSongs(Activity activity) {
@@ -118,6 +114,7 @@ class MediaPlayerControl {
         if (checkPos == 0 || checkPos != increasedPosition)
             controlClassMP = InitializePlayer(controlClassMP, activity);
         songCurrentPosition = normalPos;
+        currentSongPos = normalPos;
         DispText(title, TV);
         MpControl.playPause(play);
     }

@@ -48,15 +48,14 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
     public static MediaPlayer mediaPlayer;
     MediaPlayerControl MPControl;
     public static int songCurrentPosition;
-    String songName, songUri;
-
-    // Storing the names
-//    static ArrayList<HashMap<String, String>> songList = new ArrayList<>();
 
     @Override
     protected void onResume() {
         super.onResume();
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
+//        MPControl = new MediaPlayerControl(songCurrentPosition+1, mediaPlayer, this);
+        if(MPControl != null)
+            MediaPlayerControl.songControls(MPControl, play, bottomTV, this);
     }
 
     @Override
@@ -79,7 +78,6 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
         permissions = new Permissions(this);
         if (permissions.readExternalStoragePermission()) {
             MediaPlayerControl.ReadSongs(this);
-//            songList = MediaPlayerControl.allSongs;
 
             songListViewAdapter = new SongRecyclerAdapter(MediaPlayerControl.allSongs, "Title:", this);
             songListView.setHasFixedSize(true);
@@ -96,26 +94,22 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
     }
 
     void bottomBarClicked(final Activity activity) {
-//        if(intent == null)
-//            intent = new Intent(this, songPlayScreen.getClass());
         bottomBar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//        songPlayScreen = new SongPlayScreen(songList.get(position).get("Title:"), songList.get(position).get("URI:"), position, songList);
-//        intent = new Intent(this, songPlayScreen.getClass());
-//        startActivity(intent);
+        songPlayScreen = new SongPlayScreen();
+        intent = new Intent(activity, songPlayScreen.getClass());
+        startActivity(intent);
             }
         });
     }
 
     @Override
     public void onClickSong(int position) {
-//        MPControl = new MediaPlayerControl(position+1, mediaPlayer, this);
-//        MediaPlayerControl.songControls(MPControl, play, bottomTV, this);
-        songChange(position);
+        changeSongState(position);
     }
 
-    void songChange(int position){
+    private void changeSongState(int position){
         MPControl = new MediaPlayerControl(position+1, mediaPlayer, this);
         MediaPlayerControl.songControls(MPControl, play, bottomTV, this);
     }
@@ -126,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
             public void onClick(View v) {
                 if (songCurrentPosition == MediaPlayerControl.songsSize - 1)
                     songCurrentPosition = -1;
-                songChange(songCurrentPosition + 1);
+                changeSongState(songCurrentPosition + 1);
             }
         });
     }
@@ -137,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
             public void onClick(View v) {
                 if (songCurrentPosition == 0)
                     songCurrentPosition = MediaPlayerControl.songsSize;
-                songChange(songCurrentPosition - 1);
+                changeSongState(songCurrentPosition - 1);
             }
         });
     }

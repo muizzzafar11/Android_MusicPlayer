@@ -48,6 +48,7 @@ public class SongPlayScreen extends AppCompatActivity {
     private String uri;
 
     private float currentVolume;
+    public static int currentSongPos;
     private static AudioManager audioManager;
 
     private static Handler seekBarUpdateHandler;
@@ -62,23 +63,25 @@ public class SongPlayScreen extends AppCompatActivity {
     public SongPlayScreen() {
     }
 
-    public SongPlayScreen(String _displayName, String _uri) {
-        displayName = _displayName;
-        uri = _uri;
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        overridePendingTransition(R.anim.fadein, R.anim.fadeout);
+//        overridePendingTransition(R.anim.fadein, R.anim.fadeout);
         setContentView(R.layout.activity_song_play_screen);
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
+//        currentSongPos = MainActivity.songCurrentPosition;
 
         play = findViewById(R.id.play_button);
         songDisp = findViewById(R.id.songNameDisplay);
         next = findViewById(R.id.next_button);
+        previous = findViewById(R.id.previous_button);
 
         seekBar = findViewById(R.id.seekBar);
+
+        songStateChange(currentSongPos);
+        playNextSong(next);
+        playPrevSong(previous);
 
         seekBarUpdateHandler = new Handler();
         updateRunSeekBar = new Runnable() {
@@ -88,6 +91,33 @@ public class SongPlayScreen extends AppCompatActivity {
                 seekBarUpdateHandler.postDelayed(this, 0);
             }
         };
+    }
+
+    private void songStateChange(int position) {
+        MpControlClass = new MediaPlayerControl(position + 1, mediaPlayer, this);
+        MediaPlayerControl.songControls(MpControlClass, play, songDisp, this);
+    }
+
+    void playNextSong(Button Next) {
+        Next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (currentSongPos == MediaPlayerControl.songsSize - 1)
+                    currentSongPos = -1;
+                songStateChange(currentSongPos + 1);
+            }
+        });
+    }
+
+    void playPrevSong(Button Prev) {
+        Prev.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (currentSongPos == 0)
+                    currentSongPos = MediaPlayerControl.songsSize;
+                songStateChange(currentSongPos - 1);
+            }
+        });
     }
 
     //    @Override
@@ -132,13 +162,6 @@ public class SongPlayScreen extends AppCompatActivity {
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
     }
 
-    void songNext(Button nextButton) {
-        nextButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            }
-        });
-    }
 
     private void seekBarUserProgress(SeekBar progressBar, final MediaPlayer mp) {
 
