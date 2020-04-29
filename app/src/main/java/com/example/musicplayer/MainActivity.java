@@ -10,7 +10,6 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;
-import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -22,7 +21,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -50,13 +48,15 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
     Permissions permissions;
     SongPlayScreen songPlayScreen;
 
-    TextView bottomTV;
+    TextView bottomTV, mainTV;
     Button play, next, prev;
+    Button normalPlay, normalNext, normalPrev;
     ConstraintLayout bottomBar;
 
     public static MediaPlayer mediaPlayer;
-    MediaPlayerHandler MPH;
+    MediaPlayerControl MPControl;
     public static int songCurrentPosition;
+    String songName, songUri;
 
     // Storing the names
     static ArrayList<HashMap<String, String>> songList = new ArrayList<>();
@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        overridePendingTransition(R.anim.fadein, R.anim.fadeout);
         setContentView(R.layout.activity_main);
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
@@ -96,26 +97,35 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
             songListView.setHasFixedSize(true);
             songListView.setAdapter(songListViewAdapter);
 
-            mediaPlayer = MediaPlayerHandler.InitializePlayer(mediaPlayer, this);
+            mediaPlayer = MediaPlayerControl.InitializePlayer(mediaPlayer, this);
 
             playNextSong(next);
             playPrevSong(prev);
+            bottomBarClicked(this);
         } else {
             Toast.makeText(this, "Permission Not Granted, Please restart the app", Toast.LENGTH_LONG).show();
         }
     }
 
-    void bottomBarClicked() {
-        if(intent != null){
-            bottomBar.setOnClickListener(new View.OnClickListener() {
+    void bottomBarClicked(final Activity activity) {
+//        if(intent == null)
+//            intent = new Intent(this, songPlayScreen.getClass());
+        bottomBar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+//                    overridePendingTransition(R.anim.fadein, R.anim.fadeout);
+//                    setContentView(R.layout.song_playing_display_screen);
+//                    normalPlay = findViewById(R.id.play_button);
+//                    mainTV = findViewById(R.id.songNameDisplay);
+//                    onClickSong(songCurrentPosition);
+//                    if(MPControl != null)
+//                        MediaPlayerControl.songControls(songCurrentPosition, MPControl, play, bottomTV, activity);
+
 //        songPlayScreen = new SongPlayScreen(songList.get(position).get("Title:"), songList.get(position).get("URI:"), position, songList);
 //        intent = new Intent(this, songPlayScreen.getClass());
 //        startActivity(intent);
                 }
-            });
-        }
+        });
     }
 
     ArrayList<HashMap<String, String>> readAudioStorage(Cursor _cursor) {
@@ -152,10 +162,17 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
 
     @Override
     public void onClickSong(int position) {
-        MPH = new MediaPlayerHandler(songList.get(position).get("URI:"), songList.get(position).get("Title:"), mediaPlayer, this);
-        MediaPlayerHandler.songControls(position, MPH, play, bottomTV, this);
+        songName = songList.get(position).get("Title:");
+        songUri = songList.get(position).get("URI:");
+//        songInfoStart(MPControl, position, bottomTV, this, play);
+        MPControl = new MediaPlayerControl(songUri, songName, mediaPlayer, this);
+        MediaPlayerControl.songControls(position, MPControl, play, bottomTV, this);
     }
 
+    static void songInfoStart(MediaPlayerControl mpControl, int position, TextView tv, Activity activity, Button Play) {
+        mpControl = new MediaPlayerControl(songList.get(position).get("URI:"), songList.get(position).get("Title:"), mediaPlayer, activity);
+        MediaPlayerControl.songControls(position, mpControl, Play, tv, activity);
+    }
     void playNextSong(Button Next){
         Next.setOnClickListener(new View.OnClickListener() {
             @Override

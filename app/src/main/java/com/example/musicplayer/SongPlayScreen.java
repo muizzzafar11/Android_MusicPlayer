@@ -44,32 +44,27 @@ import java.util.HashMap;
 // ******TODO: when previous button is pressed, keep the activity open so that the song doesn't restart
 public class SongPlayScreen extends AppCompatActivity {
 
-    static String displayName;
-    static String uri;
-    static String prevUri = "";
-    float currentVolume;
+    private String displayName;
+    private String uri;
 
-    private boolean flag = false;
-    static AudioManager audioManager;
-    static Handler SeekbarUpdateHandler;
-    static Runnable UpdateSeekbar;
+    private float currentVolume;
+    private static AudioManager audioManager;
 
-    static MediaPlayer mediaPlayer;
-    public Button playPause, next, previous;
+    private static Handler seekBarUpdateHandler;
+    private static Runnable updateRunSeekBar;
+
+    private MediaPlayer mediaPlayer;
+    private MediaPlayerControl MpControlClass;
+    private Button play, next, previous;
     private SeekBar seekBar;
-    TextView songDisp;
-    static int position;
-    static ArrayList<HashMap<String, String>> songList;
+    private TextView songDisp;
 
     public SongPlayScreen() {
     }
 
-    public SongPlayScreen(String _displayName, String _uri, int _position,
-                          ArrayList<HashMap<String, String>> _songList) {
+    public SongPlayScreen(String _displayName, String _uri) {
         displayName = _displayName;
         uri = _uri;
-        position = _position;
-        songList = _songList;
     }
 
     @Override
@@ -78,36 +73,20 @@ public class SongPlayScreen extends AppCompatActivity {
         setContentView(R.layout.activity_song_play_screen);
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        playPause = findViewById(R.id.play_button);
+        play = findViewById(R.id.play_button);
         songDisp = findViewById(R.id.songNameDisplay);
-        songDisp.setText(displayName);
-        songDisp.setSelected(true);
-        seekBar = findViewById(R.id.seekBar);
         next = findViewById(R.id.next_button);
 
-        if (!prevUri.equals(uri) || prevUri.isEmpty()) {
-            if (mediaPlayer != null) {
-                mediaPlayer.stop();
-                mediaPlayer.reset();
-                mediaPlayer.release();
-            }
-//            mediaPlayer = InitializePlayer(mediaPlayer);
-            SeekbarUpdateHandler = new Handler();
+        seekBar = findViewById(R.id.seekBar);
 
-        }
-
-        UpdateSeekbar = new Runnable() {
+        seekBarUpdateHandler = new Handler();
+        updateRunSeekBar = new Runnable() {
             @Override
             public void run() {
                 seekBar.setProgress(mediaPlayer.getCurrentPosition());
-                SeekbarUpdateHandler.postDelayed(this, 0);
+                seekBarUpdateHandler.postDelayed(this, 0);
             }
         };
-
-        if (mediaPlayer != null) {
-            SongControls(mediaPlayer, playPause, uri, seekBar, next, position);
-        }
-
     }
 
     //    @Override
@@ -152,57 +131,7 @@ public class SongPlayScreen extends AppCompatActivity {
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
     }
 
-    void SongControls(MediaPlayer mediaPlayer, Button play, String uri, SeekBar progressBar, Button nextButton, int pos) {
-        songPlayPause(mediaPlayer, play, uri);
-        seekBarUserProgress(progressBar, mediaPlayer);
-        songNext(nextButton, pos);
-    }
-
-
-    void songPlayPause(final MediaPlayer mediaPlayer, Button play, String uri) {
-        if (!prevUri.equals(uri) || prevUri.isEmpty()) {
-            try {
-                mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(uri));
-                mediaPlayer.prepareAsync();
-            } catch (IOException e) {
-                Toast.makeText(this, "No Song Found. Please check the file path.", Toast.LENGTH_LONG).show();
-                e.printStackTrace();
-            }
-            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-                    mp.start();
-                    seekBar.setMax(mp.getDuration());
-                    SeekbarUpdateHandler.postDelayed(UpdateSeekbar, 0);
-                }
-            });
-            prevUri = uri;
-        }
-        play.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onPlayClick(mediaPlayer);
-            }
-        });
-    }
-
-    void onPlayClick(final MediaPlayer mediaPlayer) {
-        if (!flag && mediaPlayer.isPlaying()) {
-            mediaPlayer.pause();
-            SeekbarUpdateHandler.removeCallbacks(UpdateSeekbar);
-            flag = false;
-        } else if (!flag) {
-            mediaPlayer.start();
-            SeekbarUpdateHandler.postDelayed(UpdateSeekbar, 0);
-            flag = true;
-        } else if (mediaPlayer.isPlaying() && flag) {
-            mediaPlayer.pause();
-            SeekbarUpdateHandler.removeCallbacks(UpdateSeekbar);
-            flag = false;
-        }
-    }
-
-    void songNext(Button nextButton, final int pos) {
+    void songNext(Button nextButton) {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
