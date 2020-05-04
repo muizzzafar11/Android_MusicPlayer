@@ -2,26 +2,14 @@ package com.example.musicplayer;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Activity;
-import android.content.Context;
-import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.io.IOException;
-import java.nio.file.attribute.FileTime;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 // *** ----> working on it rn, ******-----> done the task
 // TODO: -----------------------------------DOCUMENTATION -------------------------------------------
@@ -43,9 +31,6 @@ import java.util.HashMap;
 // TODO: notification bar player, widget and lockscreen controls and display + permissions for those
 // ******TODO: when previous button is pressed, keep the activity open so that the song doesn't restart
 public class SongPlayScreen extends AppCompatActivity {
-
-    private String displayName;
-    private String uri;
 
     private float currentVolume;
     public static int currentSongPos;
@@ -70,32 +55,24 @@ public class SongPlayScreen extends AppCompatActivity {
         setContentView(R.layout.activity_song_play_screen);
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-//        currentSongPos = MainActivity.songCurrentPosition;
-
         play = findViewById(R.id.play_button);
         songDisp = findViewById(R.id.songNameDisplay);
         next = findViewById(R.id.next_button);
         previous = findViewById(R.id.previous_button);
 
-        seekBar = findViewById(R.id.seekBar);
+        seekBar = findViewById(R.id.seekBarChange);
+
 
         songStateChange(currentSongPos);
         playNextSong(next);
         playPrevSong(previous);
-
-        seekBarUpdateHandler = new Handler();
-        updateRunSeekBar = new Runnable() {
-            @Override
-            public void run() {
-                seekBar.setProgress(mediaPlayer.getCurrentPosition());
-                seekBarUpdateHandler.postDelayed(this, 0);
-            }
-        };
     }
 
     private void songStateChange(int position) {
-        MpControlClass = new MediaPlayerControl(position + 1, mediaPlayer, this);
+        MpControlClass = new MediaPlayerControl(position + 1, mediaPlayer, this, seekBar);
         MediaPlayerControl.songControls(MpControlClass, play, songDisp, this);
+        Thread seekBarThread = new Thread(MpControlClass);
+        seekBarThread.start();
     }
 
     void playNextSong(Button Next) {
@@ -141,45 +118,9 @@ public class SongPlayScreen extends AppCompatActivity {
 //        return super.onKeyDown(keyCode, event);
 //    }
 
-//    private MediaPlayer InitializePlayer
-//            (MediaPlayer mp) {
-//
-//        // Initializing MediaPlayer again, after the previous song has been stopped
-//        mp = new MediaPlayer();
-//
-//        // To set the Volume to that of mediaPlayer when the song starts
-//        mp.setAudioAttributes(new AudioAttributes.Builder()
-//                .setLegacyStreamType(getVolumeControlStream())
-//                .setUsage(AudioAttributes.USAGE_MEDIA)
-//                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-//                .build());
-//        return mp;
-//    }
-
     @Override
     protected void onResume() {
         super.onResume();
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
-    }
-
-
-    private void seekBarUserProgress(SeekBar progressBar, final MediaPlayer mp) {
-
-        progressBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (fromUser)
-                    mp.seekTo(progress);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-            }
-        });
     }
 }

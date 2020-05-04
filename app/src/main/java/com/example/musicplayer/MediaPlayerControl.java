@@ -8,10 +8,14 @@ import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,10 +23,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Objects;
 
+import static com.example.musicplayer.MainActivity.mediaPlayer;
 import static com.example.musicplayer.MainActivity.songCurrentPosition;
 import static com.example.musicplayer.SongPlayScreen.currentSongPos;
 
-class MediaPlayerControl {
+class MediaPlayerControl extends Thread {
     private static String uri;
     private static String title;
     private static int increasedPosition;
@@ -33,19 +38,33 @@ class MediaPlayerControl {
     private static MediaPlayer controlClassMP;
     private Activity activity;
 
+    private static Handler seekBarUpdateHandler = new Handler();;
+    private SeekBar seekBar;
+
     private boolean flag = false;
+    private boolean initializeSeekBar = true;
+    private int seekBarProgress;
 
     static ArrayList<HashMap<String, String>> allSongs = new ArrayList<>();
 
-    MediaPlayerControl(int _increasedPosition, MediaPlayer _mp, Activity _activity) {
+    MediaPlayerControl(int _increasedPosition, MediaPlayer _mp, Activity _activity, @Nullable SeekBar _seekBar) {
         increasedPosition = _increasedPosition;
-        normalPos = increasedPosition-1;
+        normalPos = increasedPosition - 1;
         increasedPosition = _increasedPosition;
         if (controlClassMP != null && checkPos != 0 && checkPos != increasedPosition) {
             stopPlayer();
             controlClassMP = _mp;
         }
         activity = _activity;
+        this.seekBar = _seekBar;
+    }
+
+    private void seekBarInitialize() {
+        if(seekBar != null && controlClassMP != null) {
+            int songDuration = controlClassMP.getDuration();
+            seekBar.setMax(songDuration);
+            seekBar.setProgress(controlClassMP.getCurrentPosition());
+        }
     }
 
     static void ReadSongs(Activity activity) {
@@ -106,8 +125,9 @@ class MediaPlayerControl {
         }
     }
 
-    static void songControls (MediaPlayerControl MpControl, Button play, TextView TV, Activity activity) {
-        if(allSongs != null) {
+    static void songControls
+            (MediaPlayerControl MpControl, Button play, TextView TV, Activity activity) {
+        if (allSongs != null) {
             title = allSongs.get(normalPos).get("Title:");
             uri = allSongs.get(normalPos).get("URI:");
         }
@@ -148,6 +168,37 @@ class MediaPlayerControl {
         });
     }
 
+    @Override
+    public void run() {
+        assert seekBar != null;
+        seekBarInitialize();
+        seekBarControls(seekBar);
+//        seekBar.setProgress(controlClassMP.getCurrentPosition());
+        seekBarUpdateHandler.postDelayed(this, 0);
+    }
+
+    private void seekBarControls(final SeekBar seekBar) {
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser) {
+                    seekBar.setProgress(progress);
+                    seekBarProgress = progress;
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                controlClassMP.seekTo(seekBarProgress);
+            }
+        });
+    }
+
     private void buttonPlayPause() {
         if (!flag && controlClassMP.isPlaying()) {
             controlClassMP.pause();
@@ -160,5 +211,4 @@ class MediaPlayerControl {
             flag = false;
         }
     }
-
 }

@@ -6,25 +6,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.Intent;
-import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Objects;
 
 // layout manager: arranges items into rows and columns, image and text.
 // view holder: different components to hold
@@ -40,9 +30,8 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
     Permissions permissions;
     SongPlayScreen songPlayScreen;
 
-    TextView bottomTV, mainTV;
+    TextView bottomTV;
     Button play, next, prev;
-    Button normalPlay, normalNext, normalPrev;
     ConstraintLayout bottomBar;
 
     public static MediaPlayer mediaPlayer;
@@ -53,7 +42,6 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
     protected void onResume() {
         super.onResume();
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
-//        MPControl = new MediaPlayerControl(songCurrentPosition+1, mediaPlayer, this);
         if(MPControl != null)
             MediaPlayerControl.songControls(MPControl, play, bottomTV, this);
     }
@@ -110,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
     }
 
     private void changeSongState(int position){
-        MPControl = new MediaPlayerControl(position+1, mediaPlayer, this);
+        MPControl = new MediaPlayerControl(position+1, mediaPlayer, this, null);
         MediaPlayerControl.songControls(MPControl, play, bottomTV, this);
     }
 
