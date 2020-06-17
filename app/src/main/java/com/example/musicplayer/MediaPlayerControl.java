@@ -23,7 +23,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Objects;
 
-import static com.example.musicplayer.MainActivity.mediaPlayer;
 import static com.example.musicplayer.MainActivity.songCurrentPosition;
 import static com.example.musicplayer.SongPlayScreen.currentSongPos;
 
@@ -42,7 +41,6 @@ class MediaPlayerControl extends Thread {
     private SeekBar seekBar;
 
     private boolean flag = false;
-    private boolean initializeSeekBar = true;
     private int seekBarProgress;
 
     static ArrayList<HashMap<String, String>> allSongs = new ArrayList<>();
@@ -63,7 +61,7 @@ class MediaPlayerControl extends Thread {
         if(seekBar != null && controlClassMP != null) {
             int songDuration = controlClassMP.getDuration();
             seekBar.setMax(songDuration);
-            seekBar.setProgress(controlClassMP.getCurrentPosition());
+//            seekBar.setProgress(controlClassMP.getCurrentPosition());
         }
     }
 
@@ -86,8 +84,9 @@ class MediaPlayerControl extends Thread {
             do {
                 HashMap<String, String> song = new HashMap<>();
                 long thisId = _cursor.getLong(idColumn);
-                Uri songURI = ContentUris.withAppendedId(//sth. to this
+                Uri songURI = ContentUris.withAppendedId(
                         MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, thisId);
+                // TODO: Check time of file and skip if time is less than 30s.
                 String thisTitle = _cursor.getString(titleColumn);
                 song.put("Title:", thisTitle);
                 song.put("URI:", songURI.toString());
@@ -126,7 +125,7 @@ class MediaPlayerControl extends Thread {
     }
 
     static void songControls
-            (MediaPlayerControl MpControl, Button play, TextView TV, Activity activity) {
+            (MediaPlayerControl MpControl, Button play, TextView TV, Activity activity)     {
         if (allSongs != null) {
             title = allSongs.get(normalPos).get("Title:");
             uri = allSongs.get(normalPos).get("URI:");
@@ -170,11 +169,12 @@ class MediaPlayerControl extends Thread {
 
     @Override
     public void run() {
-        assert seekBar != null;
-        seekBarInitialize();
-        seekBarControls(seekBar);
-//        seekBar.setProgress(controlClassMP.getCurrentPosition());
-        seekBarUpdateHandler.postDelayed(this, 0);
+        if(seekBar != null) {
+            seekBarInitialize();
+            seekBarControls(seekBar);
+            seekBar.setProgress(controlClassMP.getCurrentPosition());
+            seekBarUpdateHandler.postDelayed(this, 0);
+        }
     }
 
     private void seekBarControls(final SeekBar seekBar) {
@@ -188,9 +188,7 @@ class MediaPlayerControl extends Thread {
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
+            public void onStartTrackingTouch(SeekBar seekBar) { }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {

@@ -5,45 +5,28 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Handler;
+import android.os.CountDownTimer;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-// *** ----> working on it rn, ******-----> done the task
-// TODO: -----------------------------------DOCUMENTATION -------------------------------------------
-// ******TODO: Work on making it so that when a new song starts(clicked in the recycler view), the previous one stops automatically
-// TODO: Work on the previous and next song button stuff
-// ******TODO: make the code DRY and less redundant, rn it's all over the place
-// TODO: make it so that if the play button is pressed after the song ends, it doesn't play the song
-// TODO: work on automatically playing the next song after the previous one ends
-// TODO: Volume controls when it is running in the background
-// TODO: Make one activity for song play screen as well
-// TODO: Headphones plugged in
-// The task above will be able to work if we have a notification activity
-// ******TODO: Seekbar
-// ******TODO: arranging songs in alphabetical order
-// ******TODO: when there is no song display and empty list, catch that exception as well
-// ******TODO: control the song volume with the song buttons
-// TODO: research on the galaxy buds touch control for app and implement it
-// ******TODO: Headphones plugged in
 // TODO: notification bar player, widget and lockscreen controls and display + permissions for those
-// ******TODO: when previous button is pressed, keep the activity open so that the song doesn't restart
+
 public class SongPlayScreen extends AppCompatActivity {
 
     private float currentVolume;
     public static int currentSongPos;
     private static AudioManager audioManager;
 
-    private static Handler seekBarUpdateHandler;
-    private static Runnable updateRunSeekBar;
-
+    // mediaplayer is being used
     private MediaPlayer mediaPlayer;
-    private MediaPlayerControl MpControlClass;
-    private Button play, next, previous;
+    private Button play;
     private SeekBar seekBar;
     private TextView songDisp;
+    // This is in milliseconds
+    private long maxTime = 500;
+    private long btnPressedTime;
 
     public SongPlayScreen() {
     }
@@ -57,8 +40,8 @@ public class SongPlayScreen extends AppCompatActivity {
 
         play = findViewById(R.id.play_button);
         songDisp = findViewById(R.id.songNameDisplay);
-        next = findViewById(R.id.next_button);
-        previous = findViewById(R.id.previous_button);
+        Button next = findViewById(R.id.next_button);
+        Button previous = findViewById(R.id.previous_button);
 
         seekBar = findViewById(R.id.seekBarChange);
 
@@ -69,32 +52,46 @@ public class SongPlayScreen extends AppCompatActivity {
     }
 
     private void songStateChange(int position) {
-        MpControlClass = new MediaPlayerControl(position + 1, mediaPlayer, this, seekBar);
-        MediaPlayerControl.songControls(MpControlClass, play, songDisp, this);
-        Thread seekBarThread = new Thread(MpControlClass);
+        MediaPlayerControl mpControlClass =
+                new MediaPlayerControl(position + 1, mediaPlayer, this, seekBar);
+        MediaPlayerControl.songControls(mpControlClass, play, songDisp, this);
+        Thread seekBarThread = new Thread(mpControlClass);
         seekBarThread.start();
     }
 
-    void playNextSong(Button Next) {
-        Next.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (currentSongPos == MediaPlayerControl.songsSize - 1)
-                    currentSongPos = -1;
-                songStateChange(currentSongPos + 1);
-            }
-        });
-    }
+        void playNextSong(Button Next) {
+
+                Next.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+//                        new CountDownTimer(500,250) {
+//                            @Override
+//                            public void onTick(long millisUntilFinished) {
+//
+//                            }
+//
+//                            @Override
+//                            public void onFinish() {
+                                if (currentSongPos == MediaPlayerControl.songsSize - 1)
+                                    currentSongPos = -1;
+                                songStateChange(currentSongPos + 1);
+//                            }
+//                        };
+
+                    }
+                });
+        }
 
     void playPrevSong(Button Prev) {
-        Prev.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (currentSongPos == 0)
-                    currentSongPos = MediaPlayerControl.songsSize;
-                songStateChange(currentSongPos - 1);
-            }
-        });
+            Prev.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (currentSongPos == 0)
+                        currentSongPos = MediaPlayerControl.songsSize;
+                    songStateChange(currentSongPos - 1);
+                }
+            });
     }
 
     //    @Override

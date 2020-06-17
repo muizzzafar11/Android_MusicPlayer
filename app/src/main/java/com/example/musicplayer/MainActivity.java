@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
@@ -34,7 +35,8 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
     Button play, next, prev;
     ConstraintLayout bottomBar;
 
-    public static MediaPlayer mediaPlayer;
+    // Changed it to non-static, if problem
+    public MediaPlayer mediaPlayer;
     MediaPlayerControl MPControl;
     public static int songCurrentPosition;
 
@@ -106,6 +108,19 @@ public class MainActivity extends AppCompatActivity implements SongRecyclerAdapt
         Next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+//                new CountDownTimer(500,1000) {
+//                    @Override
+//                    public void onTick(long millisUntilFinished) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onFinish() {
+//                        if (songCurrentPosition == MediaPlayerControl.songsSize - 1)
+//                            songCurrentPosition = -1;
+//                        changeSongState(songCurrentPosition + 1);
+//                    }
+//                };
                 if (songCurrentPosition == MediaPlayerControl.songsSize - 1)
                     songCurrentPosition = -1;
                 changeSongState(songCurrentPosition + 1);
