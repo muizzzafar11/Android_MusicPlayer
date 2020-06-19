@@ -1,5 +1,6 @@
+This is a simple music player app I made in android studio using java. This is my first big project, on which I spent a good amount of time. 
 # About
-This is a simple music player app I made in android studio using java. This projects is the first big project I've ever done. The music player reads music from the media store and displays them in a recycler view. 
+The music player reads music from the media store and displays them in a recycler view. 
 Initially, the song name is displayed in a bottom text view and can be controlled using the buttons in the bottom bar. If the bottom bar is clicked, second activity is launched which has advanced controls. 
 # Key Takeawayas
 - Helped improve OOP skills
